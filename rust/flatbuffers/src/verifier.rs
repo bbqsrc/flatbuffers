@@ -1,9 +1,9 @@
+use crate::follow::Follow;
+use crate::{ForwardsUOffset, SOffsetT, SkipSizePrefix, UOffsetT, VOffsetT, Vector, SIZE_UOFFSET};
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 use core::ops::Range;
 use core::option::Option;
-use crate::follow::Follow;
-use crate::{ForwardsUOffset, SOffsetT, SkipSizePrefix, UOffsetT, VOffsetT, Vector, SIZE_UOFFSET};
 
 use thiserror_core2::Error;
 
