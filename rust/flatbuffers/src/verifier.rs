@@ -1,6 +1,6 @@
 use crate::follow::Follow;
 use crate::{ForwardsUOffset, SOffsetT, SkipSizePrefix, UOffsetT, VOffsetT, Vector, SIZE_UOFFSET};
-#[cfg(not(feature = "std"))]
+#[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 use core::ops::Range;
 use core::option::Option;
@@ -25,8 +25,11 @@ pub enum ErrorTraceDetail {
         position: usize,
     },
 }
+#[cfg(feature = "alloc")]
 #[derive(PartialEq, Eq, Default, Debug, Clone)]
 pub struct ErrorTrace(Vec<ErrorTraceDetail>);
+
+#[cfg(feature = "alloc")]
 impl core::convert::AsRef<[ErrorTraceDetail]> for ErrorTrace {
     #[inline]
     fn as_ref(&self) -> &[ErrorTraceDetail] {
@@ -38,53 +41,107 @@ impl core::convert::AsRef<[ErrorTraceDetail]> for ErrorTrace {
 /// information is given for DoS detecting errors since it will probably be a lot.
 #[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum InvalidFlatbuffer {
-    #[error("Missing required field `{required}`.\n{error_trace}")]
+    #[cfg_attr(
+        feature = "alloc",
+        error("Missing required field `{required}`.\n{error_trace}")
+    )]
+    #[cfg_attr(not(feature = "alloc"), error("Missing required field `{required}`."))]
     MissingRequiredField {
         required: &'static str,
+        #[cfg(feature = "alloc")]
         error_trace: ErrorTrace,
     },
-    #[error(
-        "Union exactly one of union discriminant (`{field_type}`) and value \
+
+    #[cfg_attr(
+        feature = "alloc",
+        error(
+            "Union exactly one of union discriminant (`{field_type}`) and value \
              (`{field}`) are present.\n{error_trace}"
+        )
+    )]
+    #[cfg_attr(
+        not(feature = "alloc"),
+        error(
+            "Union exactly one of union discriminant (`{field_type}`) and value \
+             (`{field}`) are present."
+        )
     )]
     InconsistentUnion {
         field: &'static str,
         field_type: &'static str,
+        #[cfg(feature = "alloc")]
         error_trace: ErrorTrace,
     },
-    #[error("Utf8 error for string in {range:?}: {error}\n{error_trace}")]
+
+    #[cfg_attr(
+        feature = "alloc",
+        error("Utf8 error for string in {range:?}: {error}\n{error_trace}")
+    )]
+    #[cfg_attr(
+        not(feature = "alloc"),
+        error("Utf8 error for string in {range:?}: {error}")
+    )]
     Utf8Error {
         #[source]
         error: core::str::Utf8Error,
         range: Range<usize>,
+        #[cfg(feature = "alloc")]
         error_trace: ErrorTrace,
     },
-    #[error("String in range [{}, {}) is missing its null terminator.\n{error_trace}",
-            range.start, range.end)]
+
+    #[cfg_attr(feature = "alloc", error("String in range [{}, {}) is missing its null terminator.\n{error_trace}",
+            range.start, range.end))]
+    #[cfg_attr(not(feature = "alloc"), error("String in range [{}, {}) is missing its null terminator.",
+            range.start, range.end))]
     MissingNullTerminator {
         range: Range<usize>,
+        #[cfg(feature = "alloc")]
         error_trace: ErrorTrace,
     },
-    #[error("Type `{unaligned_type}` at position {position} is unaligned.\n{error_trace}")]
+
+    #[cfg_attr(
+        feature = "alloc",
+        error("Type `{unaligned_type}` at position {position} is unaligned.\n{error_trace}")
+    )]
+    #[cfg_attr(
+        not(feature = "alloc"),
+        error("Type `{unaligned_type}` at position {position} is unaligned.")
+    )]
     Unaligned {
         position: usize,
         unaligned_type: &'static str,
+        #[cfg(feature = "alloc")]
         error_trace: ErrorTrace,
     },
-    #[error("Range [{}, {}) is out of bounds.\n{error_trace}", range.start, range.end)]
+
+    #[cfg_attr(feature = "alloc", error("Range [{}, {}) is out of bounds.\n{error_trace}", range.start, range.end))]
+    #[cfg_attr(not(feature = "alloc"), error("Range [{}, {}) is out of bounds.", range.start, range.end))]
     RangeOutOfBounds {
         range: Range<usize>,
+        #[cfg(feature = "alloc")]
         error_trace: ErrorTrace,
     },
-    #[error(
-        "Signed offset at position {position} has value {soffset} which points out of bounds.\
+
+    #[cfg_attr(
+        feature = "alloc",
+        error(
+            "Signed offset at position {position} has value {soffset} which points out of bounds.\
              \n{error_trace}"
+        )
+    )]
+    #[cfg_attr(
+        not(feature = "alloc"),
+        error(
+            "Signed offset at position {position} has value {soffset} which points out of bounds."
+        )
     )]
     SignedOffsetOutOfBounds {
         soffset: SOffsetT,
         position: usize,
+        #[cfg(feature = "alloc")]
         error_trace: ErrorTrace,
     },
+
     // Dos detecting errors. These do not get error traces since it will probably be very large.
     #[error("Too many tables.")]
     TooManyTables,
@@ -94,6 +151,7 @@ pub enum InvalidFlatbuffer {
     DepthLimitReached,
 }
 
+#[cfg(feature = "alloc")]
 impl core::fmt::Display for ErrorTrace {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         use ErrorTraceDetail::*;
@@ -135,6 +193,7 @@ impl InvalidFlatbuffer {
     fn new_range_oob<T>(start: usize, end: usize) -> Result<T> {
         Err(Self::RangeOutOfBounds {
             range: Range { start, end },
+            #[cfg(feature = "alloc")]
             error_trace: Default::default(),
         })
     }
@@ -142,19 +201,23 @@ impl InvalidFlatbuffer {
         Err(Self::InconsistentUnion {
             field,
             field_type,
+            #[cfg(feature = "alloc")]
             error_trace: Default::default(),
         })
     }
     fn new_missing_required<T>(required: &'static str) -> Result<T> {
         Err(Self::MissingRequiredField {
             required,
+            #[cfg(feature = "alloc")]
             error_trace: Default::default(),
         })
     }
 }
 
 /// Records the path to the verifier detail if the error is a data error and not a DoS error.
+#[cfg(feature = "alloc")]
 fn append_trace<T>(mut res: Result<T>, d: ErrorTraceDetail) -> Result<T> {
+    #[cfg(feature = "alloc")]
     if let Err(e) = res.as_mut() {
         use InvalidFlatbuffer::*;
         if let MissingRequiredField { error_trace, .. }
@@ -168,6 +231,12 @@ fn append_trace<T>(mut res: Result<T>, d: ErrorTraceDetail) -> Result<T> {
             error_trace.0.push(d)
         }
     }
+    res
+}
+
+#[cfg(not(feature = "alloc"))]
+#[inline]
+fn append_trace<T>(res: Result<T>, _d: ErrorTraceDetail) -> Result<T> {
     res
 }
 
@@ -255,6 +324,7 @@ impl<'opts, 'buf> Verifier<'opts, 'buf> {
             Err(InvalidFlatbuffer::Unaligned {
                 unaligned_type: core::any::type_name::<T>(),
                 position: pos,
+                #[cfg(feature = "alloc")]
                 error_trace: Default::default(),
             })
         }
@@ -316,6 +386,7 @@ impl<'opts, 'buf> Verifier<'opts, 'buf> {
         Err(InvalidFlatbuffer::SignedOffsetOutOfBounds {
             soffset: offset,
             position: pos,
+            #[cfg(feature = "alloc")]
             error_trace: Default::default(),
         })
     }
@@ -535,12 +606,14 @@ impl<'a> Verifiable for &'a str {
             return Err(InvalidFlatbuffer::Utf8Error {
                 error,
                 range,
+                #[cfg(feature = "alloc")]
                 error_trace: Default::default(),
             });
         }
         if !v.opts.ignore_missing_null_terminator && !has_null_terminator {
             return Err(InvalidFlatbuffer::MissingNullTerminator {
                 range,
+                #[cfg(feature = "alloc")]
                 error_trace: Default::default(),
             });
         }
