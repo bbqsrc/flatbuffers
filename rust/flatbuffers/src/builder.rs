@@ -34,6 +34,7 @@ use crate::vector::{SafeSliceAccess, Vector};
 use crate::vtable::{field_index_to_field_offset, VTable};
 use crate::vtable_writer::VTableWriter;
 
+#[cfg(feature = "alloc")]
 pub const N_SMALLVEC_STRING_VECTOR_CAPACITY: usize = 16;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -469,6 +470,7 @@ where
     /// Speed-sensitive users may wish to reduce memory usage by creating the
     /// vector manually: use `start_vector`, `push`, and `end_vector`.
     #[inline]
+    #[cfg(feature = "alloc")]
     pub fn create_vector_of_strings<'a, 'b>(
         &'a mut self,
         xs: &'b [&'b str],
