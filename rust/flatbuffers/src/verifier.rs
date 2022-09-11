@@ -1,14 +1,11 @@
-#[cfg(feature = "no_std")]
+#[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
 use core::ops::Range;
 use core::option::Option;
 use crate::follow::Follow;
 use crate::{ForwardsUOffset, SOffsetT, SkipSizePrefix, UOffsetT, VOffsetT, Vector, SIZE_UOFFSET};
 
-#[cfg(feature="no_std")]
 use thiserror_core2::Error;
-#[cfg(not(feature="no_std"))]
-use thiserror::Error;
 
 /// Traces the location of data errors. Not populated for Dos detecting errors.
 /// Useful for MissingRequiredField and Utf8Error in particular, though

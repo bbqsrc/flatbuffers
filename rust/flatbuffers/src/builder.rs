@@ -21,7 +21,7 @@ use core::iter::{DoubleEndedIterator, ExactSizeIterator};
 use core::marker::PhantomData;
 use core::ptr::write_bytes;
 use core::slice::from_raw_parts;
-#[cfg(feature = "no_std")]
+#[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
 
 use crate::endian_scalar::{emplace_scalar, read_scalar_at};

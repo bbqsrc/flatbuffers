@@ -27,7 +27,7 @@ extern crate alloc;
 
 use alloc::string::String;
 
-#[cfg(feature = "no_std")]
+#[cfg(not(feature = "std"))]
 #[global_allocator]
 static ALLOCATOR: libc_alloc::LibcAlloc = libc_alloc::LibcAlloc;
 
