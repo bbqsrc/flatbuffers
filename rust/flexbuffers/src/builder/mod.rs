@@ -15,7 +15,7 @@
 use crate::bitwidth::{align, BitWidth};
 mod value;
 use crate::FlexBufferType;
-use std::cmp::max;
+use core::cmp::max;
 use value::{find_vector_type, store_value, Value};
 mod map;
 mod push;
@@ -43,7 +43,7 @@ macro_rules! push_slice {
                 .unwrap_or_default();
             if !value.is_fixed_length_vector() {
                 let length = Value::UInt(xs.as_ref().len() as u64);
-                width = std::cmp::max(width, length.width_or_child_width());
+                width = core::cmp::max(width, length.width_or_child_width());
                 align(&mut self.buffer, width);
                 store_value(&mut self.buffer, length, width);
             } else {
@@ -155,7 +155,7 @@ impl<'a> Builder {
     /// either be empty or populated with the most recently built flexbuffer.
     pub fn take_buffer(&mut self) -> Vec<u8> {
         let mut b = Vec::new();
-        std::mem::swap(&mut self.buffer, &mut b);
+        core::mem::swap(&mut self.buffer, &mut b);
         b
     }
     /// Resets the internal state. Automatically called before building a new flexbuffer.

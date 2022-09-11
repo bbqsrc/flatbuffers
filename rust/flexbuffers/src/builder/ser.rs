@@ -15,7 +15,7 @@
 use crate::Builder;
 use serde::ser;
 use serde::ser::*;
-use std::fmt::Display;
+use core::fmt::Display;
 
 // This struct internally tracks the nested vectors representing
 // nested structs and such.
@@ -84,12 +84,12 @@ pub enum Error {
     Serde(String),
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         write!(f, "{:?}", self)
     }
 }
-impl std::error::Error for Error {}
+impl core::error::Error for Error {}
 impl ser::Error for Error {
     fn custom<T>(msg: T) -> Self
     where

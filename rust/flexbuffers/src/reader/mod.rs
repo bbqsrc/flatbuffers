@@ -15,10 +15,10 @@
 use crate::bitwidth::BitWidth;
 use crate::flexbuffer_type::FlexBufferType;
 use crate::{Blob, Buffer};
-use std::convert::{TryFrom, TryInto};
-use std::fmt;
-use std::ops::Rem;
-use std::str::FromStr;
+use core::convert::{TryFrom, TryInto};
+use core::fmt;
+use core::ops::Rem;
+use core::str::FromStr;
 mod de;
 mod iter;
 mod map;
@@ -60,18 +60,18 @@ pub enum Error {
     KeyNotFound,
     /// Failed to parse a Utf8 string.
     /// The Option will be `None` if and only if this Error was deserialized.
-    // NOTE: std::str::Utf8Error does not implement Serialize, Deserialize, nor Default. We tell
+    // NOTE: core::str::Utf8Error does not implement Serialize, Deserialize, nor Default. We tell
     // serde to skip the field and default to None. We prefer to have the boxed error so it can be
-    // used with std::error::Error::source, though another (worse) option could be to drop that
+    // used with core::error::Error::source, though another (worse) option could be to drop that
     // information.
-    Utf8Error(#[serde(skip)] Option<Box<std::str::Utf8Error>>),
+    Utf8Error(#[serde(skip)] Option<Box<core::str::Utf8Error>>),
     /// get_slice failed because the given data buffer is misaligned.
     AlignmentError,
     InvalidRootWidth,
     InvalidMapKeysVectorWidth,
 }
-impl std::convert::From<std::str::Utf8Error> for Error {
-    fn from(e: std::str::Utf8Error) -> Self {
+impl core::convert::From<core::str::Utf8Error> for Error {
+    fn from(e: core::str::Utf8Error) -> Self {
         Self::Utf8Error(Some(Box::new(e)))
     }
 }
@@ -92,8 +92,8 @@ impl fmt::Display for Error {
         }
     }
 }
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for Error {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         if let Self::Utf8Error(Some(e)) = self {
             Some(e)
         } else {
@@ -102,7 +102,7 @@ impl std::error::Error for Error {
     }
 }
 
-pub trait ReadLE: crate::private::Sealed + std::marker::Sized {
+pub trait ReadLE: crate::private::Sealed + core::marker::Sized {
     const VECTOR_TYPE: FlexBufferType;
     const WIDTH: BitWidth;
 }
@@ -174,8 +174,8 @@ impl<B: Buffer> Default for Reader<B> {
 }
 
 // manual implementation of Debug because buffer slice can't be automatically displayed
-impl<B> std::fmt::Debug for Reader<B> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<B> core::fmt::Debug for Reader<B> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         // skips buffer field
         f.debug_struct("Reader")
             .field("fxb_type", &self.fxb_type)
@@ -316,10 +316,10 @@ impl<B: Buffer> Reader<B> {
         if self.flexbuffer_type().typed_vector_type() != T::VECTOR_TYPE.typed_vector_type() {
             self.expect_type(T::VECTOR_TYPE)?;
         }
-        if self.bitwidth().n_bytes() != std::mem::size_of::<T>() {
+        if self.bitwidth().n_bytes() != core::mem::size_of::<T>() {
             self.expect_bw(T::WIDTH)?;
         }
-        let end = self.address + self.length() * std::mem::size_of::<T>();
+        let end = self.address + self.length() * core::mem::size_of::<T>();
         let slice: &[u8] = self
             .buffer
             .get(self.address..end)
@@ -492,7 +492,7 @@ impl<B: Buffer> Reader<B> {
             Bool => self.get_bool().unwrap_or_default(),
             UInt => self.as_u64() != 0,
             Int => self.as_i64() != 0,
-            Float => self.as_f64().abs() > std::f64::EPSILON,
+            Float => self.as_f64().abs() > core::f64::EPSILON,
             String | Key => !self.as_str().is_empty(),
             Null => false,
             Blob => self.length() != 0,

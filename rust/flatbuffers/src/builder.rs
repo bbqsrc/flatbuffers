@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-extern crate smallvec;
+#[cfg(feature = "alloc")]
+extern crate alloc;
 
 use core::cmp::max;
 use core::iter::{DoubleEndedIterator, ExactSizeIterator};
 use core::marker::PhantomData;
 use core::ptr::write_bytes;
 use core::slice::from_raw_parts;
-#[cfg(not(feature = "std"))]
+#[cfg(feature = "alloc")]
 use alloc::{vec, vec::Vec};
 
 use crate::endian_scalar::{emplace_scalar, read_scalar_at};

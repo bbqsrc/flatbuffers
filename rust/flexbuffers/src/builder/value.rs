@@ -231,7 +231,7 @@ impl Value {
     }
     pub fn packed_type(self, parent_width: BitWidth) -> u8 {
         let width = if self.is_inline() {
-            std::cmp::max(parent_width, self.width_or_child_width())
+            core::cmp::max(parent_width, self.width_or_child_width())
         } else {
             self.width_or_child_width()
         };
@@ -241,7 +241,7 @@ impl Value {
 
 pub fn find_vector_type<'a, T>(mut values: T) -> Value
 where
-    T: std::iter::Iterator<Item = &'a Value>,
+    T: core::iter::Iterator<Item = &'a Value>,
 {
     let first = values.next();
     if first.is_none() {

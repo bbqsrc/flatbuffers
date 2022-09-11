@@ -26,9 +26,9 @@ pub enum DeserializationError {
     Serde(String),
 }
 
-impl std::error::Error for DeserializationError {}
-impl std::fmt::Display for DeserializationError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+impl core::error::Error for DeserializationError {}
+impl core::fmt::Display for DeserializationError {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         match self {
             Self::Reader(r) => write!(f, "Flexbuffer Read Error: {:?}", r),
             Self::Serde(s) => write!(f, "Serde Error: {}", s),
@@ -39,13 +39,13 @@ impl std::fmt::Display for DeserializationError {
 impl serde::de::Error for DeserializationError {
     fn custom<T>(msg: T) -> Self
     where
-        T: std::fmt::Display,
+        T: core::fmt::Display,
     {
         Self::Serde(format!("{}", msg))
     }
 }
 
-impl std::convert::From<super::Error> for DeserializationError {
+impl core::convert::From<super::Error> for DeserializationError {
     fn from(e: super::Error) -> Self {
         Self::Reader(e)
     }

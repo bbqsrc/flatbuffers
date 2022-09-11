@@ -1,11 +1,11 @@
-use std::ops::{Deref, Range};
+use core::ops::{Deref, Range};
 
 /// The underlying buffer that is used by a flexbuffer Reader.
 ///
 /// This allows for custom buffer implementations as long as they can be viewed as a &[u8].
 pub trait Buffer: Deref<Target = [u8]> + Sized {
     // The `BufferString` allows for a buffer to return a custom string which will have the
-    // lifetime of the underlying buffer. A simple `std::str::from_utf8` wouldn't work since that
+    // lifetime of the underlying buffer. A simple `core::str::from_utf8` wouldn't work since that
     // returns a &str, which is then owned by the callee (cannot be returned from a function).
     //
     // Example: During deserialization a `BufferString` is returned, allowing the deserializer
@@ -51,7 +51,7 @@ pub trait Buffer: Deref<Target = [u8]> + Sized {
     /// Attempts to convert the given buffer to a custom string type.
     ///
     /// This should fail if the type does not have valid UTF-8 bytes, and must be zero copy.
-    fn buffer_str(&self) -> Result<Self::BufferString, std::str::Utf8Error>;
+    fn buffer_str(&self) -> Result<Self::BufferString, core::str::Utf8Error>;
 }
 
 impl<'de> Buffer for &'de [u8] {
@@ -74,7 +74,7 @@ impl<'de> Buffer for &'de [u8] {
     }
 
     #[inline]
-    fn buffer_str(&self) -> Result<Self::BufferString, std::str::Utf8Error> {
-        std::str::from_utf8(self)
+    fn buffer_str(&self) -> Result<Self::BufferString, core::str::Utf8Error> {
+        core::str::from_utf8(self)
     }
 }

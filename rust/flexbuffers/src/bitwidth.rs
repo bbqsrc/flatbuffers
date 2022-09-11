@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::bitwidth::BitWidth::*;
-use std::slice::Iter;
+use core::slice::Iter;
 
 /// Represents the size of Flexbuffers data.
 ///
@@ -45,7 +45,7 @@ impl BitWidth {
     pub fn n_bytes(self) -> usize {
         1 << self as usize
     }
-    pub fn from_nbytes(n: impl std::convert::Into<usize>) -> Option<Self> {
+    pub fn from_nbytes(n: impl core::convert::Into<usize>) -> Option<Self> {
         match n.into() {
             1 => Some(W8),
             2 => Some(W16),

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{Buffer, Reader, VectorReader};
-use std::iter::{DoubleEndedIterator, ExactSizeIterator, FusedIterator, Iterator};
+use core::iter::{DoubleEndedIterator, ExactSizeIterator, FusedIterator, Iterator};
 
 /// Iterates over a flexbuffer vector, typed vector, or map. Yields [Readers](struct.Reader.html).
 ///

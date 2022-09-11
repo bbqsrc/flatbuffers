@@ -13,7 +13,8 @@ rust = "1.51"
 
 [features]
 default = ["std"]
-std = ["core2/std", "thiserror_core2/std"]
+alloc = []
+std = ["alloc", "core2/std", "thiserror_core2/std"]
 serialize = ["serde"]
 
 [dependencies]

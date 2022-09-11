@@ -15,8 +15,8 @@
 use super::{deref_offset, unpack_type, Error, Reader, ReaderIterator, VectorReader};
 use crate::BitWidth;
 use crate::Buffer;
-use std::cmp::Ordering;
-use std::iter::{DoubleEndedIterator, ExactSizeIterator, FusedIterator, Iterator};
+use core::cmp::Ordering;
+use core::iter::{DoubleEndedIterator, ExactSizeIterator, FusedIterator, Iterator};
 
 /// Allows indexing on a flexbuffer map.
 ///
@@ -55,8 +55,8 @@ impl<B: Buffer> Default for MapReader<B> {
 }
 
 // manual implementation of Debug because buffer slice can't be automatically displayed
-impl<B: Buffer> std::fmt::Debug for MapReader<B> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<B: Buffer> core::fmt::Debug for MapReader<B> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         // skips buffer field
         f.debug_struct("MapReader")
             .field("values_address", &self.values_address)
